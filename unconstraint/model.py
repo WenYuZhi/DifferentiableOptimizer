@@ -6,13 +6,13 @@ class Model:
         assert(dim > 0 and type(dim) == int)
         self.dim = dim
         self.x = self.add_vars(self.dim)
-        self.obj_func = self.set_objective()
+        self.obj_func_dict = {"quad_fun": self.__quad_fun, "quad_fun1": self.__quad_fun1, "quad_fun2": self.__quad_fun2}
+    
+    def set_objective(self, name):
+        self.obj_func = self.obj_func_dict.get(name, self.__none_fun)()
     
     def add_vars(self, dim):
         return [sympy.Symbol('x_{}'.format(i)) for i in range(dim)]
-    
-    def set_objective(self):
-        return self.__quad_fun2()
     
     def __quad_fun(self):
         s = 0
@@ -31,6 +31,9 @@ class Model:
         for i in range(self.dim - 1):
             s += (self.x[i] - 10 * self.x[i+1])**2
         return s
+    
+    def __none_fun(self):
+        print("cannont find function")
 
     def obj_fun_eval(self, x:list):
         assert(len(x) == self.dim), print(" dimension is error ")
