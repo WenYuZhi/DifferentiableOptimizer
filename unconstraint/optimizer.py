@@ -1,5 +1,15 @@
 import numpy as np
 import pandas as pd
+from line_search import armijo
+from line_search import exact
+
+class OptimizerFactory:
+    def __init__(self, model, eps):
+        self.model, self.eps = model, eps
+        self.method_dict = {'Gradient': Gradient, 'Newton': Netwon , 'ModifiedNewton': ModifiedNetwon,'BFGS':BFGS, 'DFP': DFP}
+    
+    def create_method(self, method):
+        return self.method_dict.get(method)(self.model, self.eps)
 
 class Optimizer:
     def __init__(self, model, eps) -> None:
@@ -20,27 +30,16 @@ class Optimizer:
         return self.hessian
     
     def get_step(self):
-        # self.step = 0.01
-        self.step = self.__armijo_step()
-    
-    def __armijo_step(self):
-        alpha, beta, pho = 10, 0.1, 0.8
-        for _ in range(100):
-            if self.m.obj_fun_eval(self.x + alpha * self.d) <= self.obj_values + alpha * pho * np.dot(self.grad.T, self.d):
-                return alpha
-            alpha *= beta
-        return False
-
-    def __exact_step(self):
-        pass
+        # self.step = armijo(self.x, self.d, self.grad, self.obj_values, self.m.obj_fun_eval)
+        self.step = exact(self.x, self.d, self.m.obj_fun_eval)
 
     def moniter(self, iter_time):
         self.trace_obj.append(self.obj_values)
         self.trace_x.append(self.x)
         self.trace_d.append(self.d)
         self.trace_step.append(self.step)
-        if iter_time % 10 == 9:
-            print("iterations {} - objective function: {}".format(iter_time, self.m.obj_fun_eval(self.x)))
+        if iter_time % 20 == 19:
+            print("iterations {} - objective function: {} - grad norm: {}".format(iter_time, self.obj_values, np.linalg.norm(self.grad)))
     
     def is_stop(self):
         if np.linalg.norm(self.grad, 1.0) <= self.eps:
