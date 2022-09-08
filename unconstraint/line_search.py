@@ -12,4 +12,7 @@ def exact(x, d, obj_fun_eval):
     alpha = np.linspace(10, 0.001, 100)
     index = np.argmin([obj_fun_eval(x + a*d) for a in alpha])
     return alpha[index]
+
+def constant():
+    return 1.0
      

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from line_search import armijo
 from line_search import exact
+from line_search import constant
 
 class OptimizerFactory:
     def __init__(self, model, eps):
@@ -130,3 +131,5 @@ class DFP(Optimizer):
             self.h = self.__approx_hessian()
             self.d = -1.0 * np.dot(self.h, self.grad)
         self.grad_hat, self.x_hat = self.grad.copy(), self.x.copy()
+
+
